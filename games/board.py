@@ -14,6 +14,11 @@ class Board:
         self.winner = None
         self.last_laser_path = []
         self.last_laser_hit = None
+        self.configurations = [
+            ("Classique", lambda b: b.place_classic_setup()),
+            ("Imhotep", lambda b: b.place_imhotep_setup()),
+            ("Dynasty", lambda b: b.place_dynasty_setup()),
+        ]
 
     def get_piece_at(self, pos):
         x, y = pos
@@ -22,6 +27,8 @@ class Board:
         return None
 
     def is_valid_move(self, piece, target):
+        if isinstance(piece, Sphinx):
+            return False
         tx, ty = target
         if not (0 <= tx < 10 and 0 <= ty < 8):
             return False
@@ -33,7 +40,7 @@ class Board:
         if dx > 1 or dy > 1:
             return False
         target_piece = self.get_piece_at(target)
-        if isinstance(piece, Scarab) and isinstance(target_piece, (Anubis, Pyramid)):
+        if isinstance(piece, Scarabee) and isinstance(target_piece, (Anubis, Pyramide)):
             return True
         return target_piece is None
 
@@ -41,7 +48,7 @@ class Board:
         x0, y0 = piece.position
         tx, ty = target
         target_piece = self.get_piece_at(target)
-        if isinstance(piece, Scarab) and isinstance(target_piece, (Anubis, Pyramid)):
+        if isinstance(piece, Scarabee) and isinstance(target_piece, (Anubis, Pyramide)):
             self.grid[y0][x0], self.grid[ty][tx] = target_piece, piece
             piece.position, target_piece.position = (tx, ty), (x0, y0)
         else:
@@ -61,12 +68,11 @@ class Board:
         self.last_laser_path = path
         self.last_laser_hit = hit_piece
 
-        # Applique les effets
         if hit_piece:
-            if isinstance(hit_piece, Pharaoh):
+            if isinstance(hit_piece, Pharaon):
                 self.winner = self.opponent(hit_piece.owner)
                 print(f"Le joueur {self.winner} a gagné !")
-            elif isinstance(hit_piece, (Pyramid, Anubis)):
+            elif isinstance(hit_piece, (Pyramide, Anubis)):
                 xh, yh = hit_piece.position
                 self.grid[yh][xh] = None
                 self.pieces.remove(hit_piece)
@@ -82,10 +88,14 @@ class Board:
         if piece and piece.owner == self.current_player:
             self.selected = piece
         elif self.selected:
-            # déplacement
+
             if self.is_valid_move(self.selected, pos):
                 self.move_piece(self.selected, pos)
             self.selected = None
+
+    def end_turn(self):
+        self.current_player = self.opponent(self.current_player)
+        self.selected = None
 
     def add_piece(self, piece):
         x, y = piece.position
@@ -98,103 +108,97 @@ class Board:
 
     def place_classic_setup(self):
         self.clear()
-        #Pièce Rouge
-        self.add_piece(Sphinx((0,0), 'S', 'RED'))
-        self.add_piece(Pharaoh((5, 0), 'S', 'RED'))
-        self.add_piece(Scarab((4, 3), 'N', 'RED'))
-        self.add_piece(Scarab((5, 3), 'N', 'RED'))
-        self.add_piece(Anubis((4, 0), 'S', 'RED'))
-        self.add_piece(Anubis((6, 0), 'S', 'RED'))
-        self.add_piece(Pyramid((2, 1), 'E', 'RED'))
-        self.add_piece(Pyramid((7, 0), 'E', 'RED'))
-        self.add_piece(Pyramid((0, 3), 'E', 'RED'))
-        self.add_piece(Pyramid((0, 4), 'E', 'RED'))
-        self.add_piece(Pyramid((7, 3), 'E', 'RED'))
-        self.add_piece(Pyramid((7, 4), 'E', 'RED'))
-        self.add_piece(Pyramid((6, 5), 'E', 'RED'))
-        #Piece grise
-        self.add_piece(Sphinx((9, 7), 'W', 'GRAY'))
-        self.add_piece(Pharaoh((4, 7), 'N', 'GRAY'))
-        self.add_piece(Scarab((4, 4), 'S', 'GRAY'))
-        self.add_piece(Scarab((5, 4), 'S', 'GRAY'))
+        #Red Piece
+        self.add_piece(Sphinx((0,0), 'N', 'RED'))
+        self.add_piece(Pharaon((5, 0), 'N', 'RED'))
+        self.add_piece(Scarabee((4, 3), 'N', 'RED'))
+        self.add_piece(Scarabee((5, 3), 'N', 'RED'))
+        self.add_piece(Anubis((4, 0), 'N', 'RED'))
+        self.add_piece(Anubis((6, 0), 'N', 'RED'))
+        self.add_piece(Pyramide((2, 1), 'N', 'RED'))
+        self.add_piece(Pyramide((7, 0), 'N', 'RED'))
+        self.add_piece(Pyramide((0, 3), 'N', 'RED'))
+        self.add_piece(Pyramide((0, 4), 'N', 'RED'))
+        self.add_piece(Pyramide((7, 3), 'N', 'RED'))
+        self.add_piece(Pyramide((7, 4), 'N', 'RED'))
+        self.add_piece(Pyramide((6, 5), 'N', 'RED'))
+        #Gray Piece
+        self.add_piece(Sphinx((9, 7), 'N', 'GRAY'))
+        self.add_piece(Pharaon((4, 7), 'N', 'GRAY'))
+        self.add_piece(Scarabee((4, 4), 'N', 'GRAY'))
+        self.add_piece(Scarabee((5, 4), 'N', 'GRAY'))
         self.add_piece(Anubis((3, 7), 'N', 'GRAY'))
         self.add_piece(Anubis((5, 7), 'N', 'GRAY'))
-        self.add_piece(Pyramid((3, 2), 'E', 'GRAY'))
-        self.add_piece(Pyramid((2, 3), 'E', 'GRAY'))
-        self.add_piece(Pyramid((2, 4), 'E', 'GRAY'))
-        self.add_piece(Pyramid((9, 3), 'E', 'GRAY'))
-        self.add_piece(Pyramid((9, 4), 'E', 'GRAY'))
-        self.add_piece(Pyramid((7, 6), 'E', 'GRAY'))
-        self.add_piece(Pyramid((2, 7), 'E', 'GRAY'))
+        self.add_piece(Pyramide((3, 2), 'N', 'GRAY'))
+        self.add_piece(Pyramide((2, 3), 'N', 'GRAY'))
+        self.add_piece(Pyramide((2, 4), 'N', 'GRAY'))
+        self.add_piece(Pyramide((9, 3), 'N', 'GRAY'))
+        self.add_piece(Pyramide((9, 4), 'N', 'GRAY'))
+        self.add_piece(Pyramide((7, 6), 'N', 'GRAY'))
+        self.add_piece(Pyramide((2, 7), 'N', 'GRAY'))
 
     def place_imhotep_setup(self):
         self.clear()
-        #Pièce Rouge
-        self.add_piece(Sphinx((0,0), 'S', 'RED'))
-        self.add_piece(Pharaoh((5, 0), 'S', 'RED'))
-        self.add_piece(Scarab((7, 0), 'N', 'RED'))
-        self.add_piece(Scarab((5, 3), 'N', 'RED'))
-        self.add_piece(Anubis((4, 0), 'S', 'RED'))
-        self.add_piece(Anubis((6, 0), 'S', 'RED'))
-        self.add_piece(Pyramid((5, 4), 'E', 'RED'))
-        self.add_piece(Pyramid((6, 5), 'E', 'RED'))
-        self.add_piece(Pyramid((0, 3), 'E', 'RED'))
-        self.add_piece(Pyramid((0, 4), 'E', 'RED'))
-        self.add_piece(Pyramid((8, 3), 'E', 'RED'))
-        self.add_piece(Pyramid((8, 4), 'E', 'RED'))
-        self.add_piece(Pyramid((6, 2), 'E', 'RED'))
-        #Piece grise
-        self.add_piece(Sphinx((9, 7), 'W', 'GRAY'))
-        self.add_piece(Pharaoh((4, 7), 'N', 'GRAY'))
-        self.add_piece(Scarab((4, 4), 'S', 'GRAY'))
-        self.add_piece(Scarab((2, 7), 'S', 'GRAY'))
+        #Red Piece
+        self.add_piece(Sphinx((0,0), 'N', 'RED'))
+        self.add_piece(Pharaon((5, 0), 'N', 'RED'))
+        self.add_piece(Scarabee((7, 0), 'N', 'RED'))
+        self.add_piece(Scarabee((5, 3), 'N', 'RED'))
+        self.add_piece(Anubis((4, 0), 'N', 'RED'))
+        self.add_piece(Anubis((6, 0), 'N', 'RED'))
+        self.add_piece(Pyramide((5, 4), 'N', 'RED'))
+        self.add_piece(Pyramide((6, 5), 'N', 'RED'))
+        self.add_piece(Pyramide((0, 3), 'N', 'RED'))
+        self.add_piece(Pyramide((0, 4), 'N', 'RED'))
+        self.add_piece(Pyramide((8, 3), 'N', 'RED'))
+        self.add_piece(Pyramide((8, 4), 'N', 'RED'))
+        self.add_piece(Pyramide((6, 2), 'N', 'RED'))
+        #Gray Piece
+        self.add_piece(Sphinx((9, 7), 'N', 'GRAY'))
+        self.add_piece(Pharaon((4, 7), 'N', 'GRAY'))
+        self.add_piece(Scarabee((4, 4), 'N', 'GRAY'))
+        self.add_piece(Scarabee((2, 7), 'N', 'GRAY'))
         self.add_piece(Anubis((3, 7), 'N', 'GRAY'))
         self.add_piece(Anubis((5, 7), 'N', 'GRAY'))
-        self.add_piece(Pyramid((3, 2), 'E', 'GRAY'))
-        self.add_piece(Pyramid((1, 3), 'E', 'GRAY'))
-        self.add_piece(Pyramid((1, 4), 'E', 'GRAY'))
-        self.add_piece(Pyramid((9, 3), 'E', 'GRAY'))
-        self.add_piece(Pyramid((9, 4), 'E', 'GRAY'))
-        self.add_piece(Pyramid((4, 3), 'E', 'GRAY'))
-        self.add_piece(Pyramid((3, 5), 'E', 'GRAY'))
+        self.add_piece(Pyramide((3, 2), 'N', 'GRAY'))
+        self.add_piece(Pyramide((1, 3), 'N', 'GRAY'))
+        self.add_piece(Pyramide((1, 4), 'N', 'GRAY'))
+        self.add_piece(Pyramide((9, 3), 'N', 'GRAY'))
+        self.add_piece(Pyramide((9, 4), 'N', 'GRAY'))
+        self.add_piece(Pyramide((4, 3), 'N', 'GRAY'))
+        self.add_piece(Pyramide((3, 5), 'N', 'GRAY'))
 
     def place_dynasty_setup(self):
         self.clear()
-        #Pièce Rouge
-        self.add_piece(Sphinx((0,0), 'W', 'RED'))
-        self.add_piece(Pharaoh((5, 1), 'S', 'RED'))
-        self.add_piece(Scarab((6, 2), 'N', 'RED'))
-        self.add_piece(Scarab((5, 5), 'N', 'RED'))
-        self.add_piece(Anubis((5, 2), 'S', 'RED'))
-        self.add_piece(Anubis((5, 0), 'S', 'RED'))
-        self.add_piece(Pyramid((5, 4), 'E', 'RED'))
-        self.add_piece(Pyramid((6, 0), 'E', 'RED'))
-        self.add_piece(Pyramid((0, 2), 'E', 'RED'))
-        self.add_piece(Pyramid((0, 3), 'E', 'RED'))
-        self.add_piece(Pyramid((4, 0), 'E', 'RED'))
-        self.add_piece(Pyramid((3, 4), 'E', 'RED'))
-        self.add_piece(Pyramid((4, 2), 'E', 'RED'))
-        #Piece grise
-        self.add_piece(Sphinx((9, 7), 'W', 'GRAY'))
-        self.add_piece(Pharaoh((4, 6), 'N', 'GRAY'))
-        self.add_piece(Scarab((3, 5), 'S', 'GRAY'))
-        self.add_piece(Scarab((7, 4), 'S', 'GRAY'))
+        #Red Piece
+        self.add_piece(Sphinx((0,0), 'N', 'RED'))
+        self.add_piece(Pharaon((5, 1), 'N', 'RED'))
+        self.add_piece(Scarabee((6, 2), 'N', 'RED'))
+        self.add_piece(Scarabee((5, 5), 'N', 'RED'))
+        self.add_piece(Anubis((5, 2), 'N', 'RED'))
+        self.add_piece(Anubis((5, 0), 'N', 'RED'))
+        self.add_piece(Pyramide((5, 4), 'N', 'RED'))
+        self.add_piece(Pyramide((6, 0), 'N', 'RED'))
+        self.add_piece(Pyramide((0, 2), 'N', 'RED'))
+        self.add_piece(Pyramide((0, 3), 'N', 'RED'))
+        self.add_piece(Pyramide((4, 0), 'N', 'RED'))
+        self.add_piece(Pyramide((3, 4), 'N', 'RED'))
+        self.add_piece(Pyramide((4, 2), 'N', 'RED'))
+        #Gray Piece
+        self.add_piece(Sphinx((9, 7), 'N', 'GRAY'))
+        self.add_piece(Pharaon((4, 6), 'N', 'GRAY'))
+        self.add_piece(Scarabee((3, 5), 'N', 'GRAY'))
+        self.add_piece(Scarabee((7, 4), 'N', 'GRAY'))
         self.add_piece(Anubis((4, 7), 'N', 'GRAY'))
         self.add_piece(Anubis((4, 5), 'N', 'GRAY'))
-        self.add_piece(Pyramid((4, 3), 'E', 'GRAY'))
-        self.add_piece(Pyramid((6, 3), 'E', 'GRAY'))
-        self.add_piece(Pyramid((5, 5), 'E', 'GRAY'))
-        self.add_piece(Pyramid((9, 4), 'E', 'GRAY'))
-        self.add_piece(Pyramid((9, 5), 'E', 'GRAY'))
-        self.add_piece(Pyramid((3, 7), 'E', 'GRAY'))
-        self.add_piece(Pyramid((5, 7), 'E', 'GRAY'))
+        self.add_piece(Pyramide((4, 3), 'N', 'GRAY'))
+        self.add_piece(Pyramide((6, 3), 'N', 'GRAY'))
+        self.add_piece(Pyramide((5, 5), 'N', 'GRAY'))
+        self.add_piece(Pyramide((9, 4), 'N', 'GRAY'))
+        self.add_piece(Pyramide((9, 5), 'N', 'GRAY'))
+        self.add_piece(Pyramide((3, 7), 'N', 'GRAY'))
+        self.add_piece(Pyramide((5, 7), 'N', 'GRAY'))
 
-    def place_test_pieces(self):
-        # Configuration de test
-        self.pieces.clear()
-        self.add_piece(Sphinx((0, 0), 'E', 'RED'))
-        self.add_piece(Sphinx((9, 7), 'W', 'GRAY'))
-        self.add_piece(Pharaoh((5, 0), 'S', 'GRAY'))
-        self.add_piece(Pharaoh((4, 7), 'N', 'RED'))
+
 
 

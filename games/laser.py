@@ -1,4 +1,4 @@
-from games.piece import Sphinx, Pyramid, Scarab, Anubis, Pharaoh
+from games.piece import Sphinx, Pyramide, Scarabee, Anubis, Pharaon
 
 def trace_laser(board, start_pos, direction):
     path = []
@@ -6,10 +6,10 @@ def trace_laser(board, start_pos, direction):
 
     dir_map = {'N': (0, -1), 'E': (1, 0), 'S': (0, 1), 'W': (-1, 0)}
     reflect_map = {
-        ('N', 'W'): 'E', ('E', 'S'): 'N',
-        ('S', 'E'): 'W', ('W', 'N'): 'S',
-        ('E', 'W'): 'S', ('N', 'S'): 'E',
-        ('S', 'N'): 'W', ('W', 'E'): 'N',
+        ('N', 'E'): 'W', ('W', 'N'): 'S',
+        ('S', 'W'): 'E', ('E', 'S'): 'N',
+        ('N', 'W'): 'E', ('E', 'N'): 'S',
+        ('S', 'E'): 'W', ('W', 'S'): 'N',
 
     }
 
@@ -27,14 +27,14 @@ def trace_laser(board, start_pos, direction):
             if isinstance(piece, Sphinx):
                 break
 
-            elif isinstance(piece, Scarab):
+            elif isinstance(piece, Scarabee):
                 direction = {'N': 'E', 'E': 'S', 'S': 'W', 'W': 'N'}[direction]
                 dx, dy = dir_map[direction]
                 x += dx
                 y += dy
                 continue
 
-            elif isinstance(piece, Pyramid):
+            elif isinstance(piece, Pyramide):
                 new_dir = reflect_map.get((direction, piece.orientation))
                 if new_dir:
                     direction = new_dir
@@ -53,7 +53,7 @@ def trace_laser(board, start_pos, direction):
                     hit_piece = piece
                     break
 
-            elif isinstance(piece, Pharaoh):
+            elif isinstance(piece, Pharaon):
                 hit_piece = piece
                 break
 

@@ -9,8 +9,8 @@ class Piece:
         idx = orientations.index(self.orientation)
         self.orientation = orientations[(idx + (1 if clockwise else -1)) % 4]
 
-class Pharaoh(Piece): pass
+class Pharaon(Piece): pass
 class Sphinx(Piece): pass
-class Scarab(Piece): pass
-class Pyramid(Piece): pass
+class Scarabee(Piece): pass
+class Pyramide(Piece): pass
 class Anubis(Piece): pass
