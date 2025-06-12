@@ -21,9 +21,6 @@ def run_local_game(board, renderer):
                 pygame.quit()
                 sys.exit()
 
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                board.apply_laser()
-
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mx, my = pygame.mouse.get_pos()
                 gx = (mx - renderer.offset_x) // TILE_SIZE
@@ -39,7 +36,7 @@ def run_local_game(board, renderer):
                 orientations = ['N', 'E', 'S', 'W']
                 idx = orientations.index(board.selected.orientation)
                 board.selected.orientation = orientations[(idx + 1) % 4]
-                #board.apply_laser()
+                board.apply_laser()
                 board.end_turn()
 
         renderer.draw()
@@ -57,8 +54,6 @@ def run_online_game(board, renderer, net):
                 x, y = int(parts[1]), int(parts[2])
                 board.toggle_select((x, y))
                 board.toggle_select((x, y))
-                board.apply_laser()
-                board.end_turn()
 
             elif cmd == 'ROTATE':
                 x, y = int(parts[1]), int(parts[2])
@@ -67,14 +62,13 @@ def run_online_game(board, renderer, net):
                     orientations = ['N', 'E', 'S', 'W']
                     idx = orientations.index(piece.orientation)
                     piece.orientation = orientations[(idx + 1) % 4]
-                    board.apply_laser()
-                    board.end_turn()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 net.close()
                 pygame.quit()
                 sys.exit()
+
 
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mx, my = pygame.mouse.get_pos()
@@ -94,8 +88,6 @@ def run_online_game(board, renderer, net):
                 board.selected.orientation = orientations[(idx + 1) % 4]
                 pos = board.selected.position
                 net.send(f"ROTATE {pos[0]} {pos[1]}")
-                board.apply_laser()
-                board.end_turn()
 
         renderer.draw()
         pygame.display.flip()

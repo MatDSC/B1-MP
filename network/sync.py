@@ -1,4 +1,3 @@
-# network/sync.py – synchronisation des actions multijoueur
 import socket
 import threading
 

@@ -3,7 +3,7 @@ import sys
 import os
 
 pygame.font.init()
-FONT = pygame.font.SysFont("papyrus", 36)
+FONT = pygame.font.SysFont("papyrus", 46)
 
 def load_background(screen):
     this_dir = os.path.dirname(__file__)

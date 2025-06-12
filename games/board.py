@@ -1,8 +1,8 @@
 from games.piece import *
+from games.laser import trace_laser
 
 class Board:
     def __init__(self):
-        # Plateau 8x10
         self.grid = [[None for _ in range(10)] for _ in range(8)]
         self.pieces = []
         self.selected = None
@@ -14,6 +14,7 @@ class Board:
         self.winner = None
         self.last_laser_path = []
         self.last_laser_hit = None
+        self.last_laser_owner = None
         self.configurations = [
             ("Classique", lambda b: b.place_classic_setup()),
             ("Imhotep", lambda b: b.place_imhotep_setup()),
@@ -57,12 +58,15 @@ class Board:
             piece.position = (tx, ty)
 
     def apply_laser(self):
-        from games.laser import trace_laser
+
         sphinx = next((p for p in self.pieces if isinstance(p, Sphinx) and p.owner == self.current_player), None)
         if not sphinx:
             self.last_laser_path = []
             self.last_laser_hit = None
+            self.last_laser_owner = None
             return [], None
+
+        self.last_laser_owner = sphinx.owner
 
         path, hit_piece = trace_laser(self, sphinx.position, sphinx.orientation)
         self.last_laser_path = path
@@ -109,7 +113,7 @@ class Board:
     def place_classic_setup(self):
         self.clear()
         #Red Piece
-        self.add_piece(Sphinx((0,0), 'N', 'RED'))
+        self.add_piece(Sphinx((0,0), 'S', 'RED'))
         self.add_piece(Pharaon((5, 0), 'N', 'RED'))
         self.add_piece(Scarabee((4, 3), 'N', 'RED'))
         self.add_piece(Scarabee((5, 3), 'N', 'RED'))
@@ -140,7 +144,7 @@ class Board:
     def place_imhotep_setup(self):
         self.clear()
         #Red Piece
-        self.add_piece(Sphinx((0,0), 'N', 'RED'))
+        self.add_piece(Sphinx((0,0), 'S', 'RED'))
         self.add_piece(Pharaon((5, 0), 'N', 'RED'))
         self.add_piece(Scarabee((7, 0), 'N', 'RED'))
         self.add_piece(Scarabee((5, 3), 'N', 'RED'))
@@ -171,7 +175,7 @@ class Board:
     def place_dynasty_setup(self):
         self.clear()
         #Red Piece
-        self.add_piece(Sphinx((0,0), 'N', 'RED'))
+        self.add_piece(Sphinx((0,0), 'S', 'RED'))
         self.add_piece(Pharaon((5, 1), 'N', 'RED'))
         self.add_piece(Scarabee((6, 2), 'N', 'RED'))
         self.add_piece(Scarabee((5, 5), 'N', 'RED'))

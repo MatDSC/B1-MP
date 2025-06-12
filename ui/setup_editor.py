@@ -82,18 +82,14 @@ class SetupEditor:
         self.screen = screen
         self.width, self.height = screen.get_size()
         self.board = Board()
-
         self.selected_piece_type  = Pharaon
         self.selected_owner       = "RED"
         self.selected_orientation = "N"
-
         self.configs = list_custom_configs()
         self.selected_config_idx = 0 if self.configs else -1
-
         self.awaiting_name = False
         self.name_input    = ""
         self.rename_mode   = False
-
         self._preload_all_piece_images()
 
         board_w  = TILE_SIZE * 10
@@ -113,13 +109,11 @@ class SetupEditor:
         btn_gap   = 30
         total_w   = btn_w + (btn_w + btn_gap) + (btn_w + btn_gap)
         start_x   = board_x + (board_w - total_w) // 2
-        y_buttons = board_y + board_h + 40  # 40 px sous le plateau
+        y_buttons = board_y + board_h + 40
         self.save_rect   = pygame.Rect(start_x, y_buttons, btn_w, btn_h)
         self.rename_rect = pygame.Rect(start_x + btn_w + btn_gap, y_buttons, btn_w, btn_h)
         self.delete_rect = pygame.Rect(start_x + (btn_w + btn_gap)*2, y_buttons, btn_w, btn_h)
-
         self.back_rect = pygame.Rect(self.width - 180 - 20, self.height - btn_h - 20, 180, btn_h)
-
         self.icon_size  = 40
         self.icon_gap   = 10
         self.icon_rects = {}
@@ -147,7 +141,6 @@ class SetupEditor:
                 surf = pygame.Surface((self.icon_size, self.icon_size), pygame.SRCALPHA)
             self.icon_rects[cls] = {"rect": rect, "surf": surf}
 
-
     def _preload_all_piece_images(self):
 
         folder = os.path.join("assets", "images", "pieces")
@@ -168,7 +161,6 @@ class SetupEditor:
                 else:
                     surf = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
                 self.piece_sprites[(cls_name, owner)] = surf
-
 
     def draw(self):
         screen = self.screen
@@ -363,7 +355,6 @@ class SetupEditor:
                             load_config(self.board, self.configs[idx])
                         continue
 
-            # ————— 2) APRÈS AVOIR TRAITÉ TOUS LES ÉVÉNEMENTS, ON DESSINE —————
             self.draw()
             clock.tick(30)
 
